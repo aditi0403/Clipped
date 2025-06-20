@@ -54,30 +54,29 @@ document.addEventListener("DOMContentLoaded", () => {
     reader.readAsDataURL(file);
   }
 
-  removeBackgroundBtn.addEventListener("click", async () => {
-    if (!uploadedFile) return;
+removeBackgroundBtn.addEventListener("click", async () => {
+  loading.style.display = "flex";
+  try {
+    const formData = new FormData();
+    formData.append("data", uploadedFile); // Hugging Face uses 'data'
 
-    loading.style.display = "flex";
-    try {
-      const formdata = new FormData();
-      formdata.append("file", uploadedFile);
+    const response = await fetch("https://hf.space/embed/akhaliq/U-2-Net/api/predict/", {
+      method: "POST",
+      body: formData,
+    });
 
-      const response = await fetch("/api/remove-bg", {
-        method: "POST",
-        body: formdata,
-      });
+    const result = await response.json();
+    const base64Image = result.data[0]?.data;
+    processedImage.src = base64Image;
+    processedImage.hidden = false;
+    downloadBtn.disabled = false;
+  } catch (error) {
+    console.error("Failed:", error);
+  } finally {
+    loading.style.display = "none";
+  }
+});
 
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      processedImage.src = url;
-      processedImage.hidden = false;
-      downloadBtn.disabled = false;
-    } catch (error) {
-      console.error("Background removal failed:", error);
-    } finally {
-      loading.style.display = "none";
-    }
-  });
 
   downloadBtn.addEventListener("click", () => {
     const link = document.createElement("a");
