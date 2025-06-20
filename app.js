@@ -20,7 +20,14 @@ app.post('/api/remove-bg', upload.single('file'), async (req, res) => {
       body: form,
     });
 
-    const result = await response.json();
+    if (!response.ok) {
+  const errorText = await response.text();
+  console.error("API error response:", errorText);
+  throw new Error("Server returned an error");
+}
+
+const result = await response.json();
+
     res.send(result);
   } catch (error) {
     console.error("Proxy error:", error);
