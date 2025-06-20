@@ -1,29 +1,30 @@
 const express = require('express');
 const multer = require('multer');
 const fetch = require('node-fetch');
+const FormData = require('form-data');
 
 const router = express.Router();
 const upload = multer();
 
 router.post('/api/remove-bg', upload.single('file'), async (req, res) => {
   try {
-    const formData = new FormData();
-    formData.append('file', req.file.buffer, {
+    const form = new FormData();
+    form.append('file', req.file.buffer, {
       filename: req.file.originalname,
       contentType: req.file.mimetype,
     });
 
-    const response = await fetch('https://rembg-api.onrender.com/remove-bg', {
+    const response = await fetch('https://YOUR-REMBG-API.onrender.com/remove-bg', {
       method: 'POST',
-      body: formData,
+      body: form,
     });
 
-    const blob = await response.buffer();
+    const result = await response.buffer();
     res.set('Content-Type', 'image/png');
-    res.send(blob);
+    res.send(result);
   } catch (err) {
-    console.error('Proxy error:', err);
-    res.status(500).send('Failed to remove background.');
+    console.error('rembg error:', err);
+    res.status(500).send('Background removal failed.');
   }
 });
 
