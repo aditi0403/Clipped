@@ -54,29 +54,33 @@ document.addEventListener("DOMContentLoaded", () => {
     reader.readAsDataURL(file);
   }
 
-removeBackgroundBtn.addEventListener("click", async () => {
-  loading.style.display = "flex";
-  try {
-    const formData = new FormData();
-    formData.append("data", uploadedFile); // Hugging Face uses 'data'
+  removeBackgroundBtn.addEventListener("click", async () => {
+    loading.style.display = "flex";
+    try {
+      const formData = new FormData();
+      formData.append("file", uploadedFile); // ✅ matches multer
 
-    const response = await fetch("/api/remove-bg", {
-      method: "POST",
-      body: formData,
-    });
+      const response = await fetch("/api/remove-bg", {
+        method: "POST",
+        body: formData,
+      });
 
-    const result = await response.json();
-    const base64Image = result.data[0]?.data;
-    processedImage.src = base64Image;
-    processedImage.hidden = false;
-    downloadBtn.disabled = false;
-  } catch (error) {
-    console.error("Failed:", error);
-  } finally {
-    loading.style.display = "none";
-  }
-});
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
 
+      const result = await response.json();
+      const base64Image = result.data[0]?.data;
+      processedImage.src = base64Image;
+      processedImage.hidden = false;
+      downloadBtn.disabled = false;
+    } catch (error) {
+      console.error("Failed:", error);
+    } finally {
+      loading.style.display = "none";
+    }
+  });
 
   downloadBtn.addEventListener("click", () => {
     const link = document.createElement("a");
