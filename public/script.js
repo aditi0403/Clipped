@@ -60,7 +60,7 @@ removeBackgroundBtn.addEventListener("click", async () => {
     const formData = new FormData();
     formData.append("data", uploadedFile); // Hugging Face uses 'data'
 
-    const response = await fetch("https://hf.space/embed/akhaliq/U-2-Net/api/predict/", {
+    const response = await fetch("/api/remove-bg", {
       method: "POST",
       body: formData,
     });
